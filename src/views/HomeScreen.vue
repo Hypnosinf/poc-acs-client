@@ -28,16 +28,23 @@
         </v-card>
       </v-col>
     </v-row>
+    <LoadingScreen v-if="isLoading"></LoadingScreen>
   </v-container>
+  
 </template>
 
 <script>
+import LoadingScreen from "@/components/LoadingScreen";
 import { CallClient } from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default {
   name: "HelloWorld",
+  components: {
+    LoadingScreen
+  },
   data: () => ({
+    isLoading: true,
     title: "Comienza ahora",
     subtitulo: "",
     call: "",
