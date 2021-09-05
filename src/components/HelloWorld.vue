@@ -1,58 +1,116 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <v-container fill-height fluid>
+    <v-row align="center" justify="center">
+      <v-col>
+        <v-card flat>
+          <v-card-title class="headline justify-center pa-0 mb-4">Azure Communication Services</v-card-title>
+          <v-card-text class="py-0">
+            <v-layout justify-center>
+              <v-flex sm8 lg6 xl5>
+                <v-text-field label="User Acces Token" v-model="userAccesToken" autofocus></v-text-field>
+                <v-text-field label="Id usuario a llamar" v-model="idUser"></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+          <v-card-actions>
+            <v-layout justify-center>
+              <v-flex sm8 lg6 xl5>
+                <v-layout>
+                  <v-btn icon color="success" @click="login">
+                    <v-icon>mdi-fingerprint</v-icon>
+                  </v-btn>
+                  <v-btn icon color="success" @click="refreshToken">
+                    <v-icon>mdi-refresh</v-icon>
+                  </v-btn>
+                  <v-btn icon color="primary" @click="startAgentCall">
+                    <v-icon>mdi-spellcheck</v-icon>
+                  </v-btn>
+                  <v-btn icon color="primary" @click="startCall">
+                    <v-icon>mdi-phone</v-icon>
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-btn type="submit" color="secondary" @click="hangUp" depressed>Finalizar</v-btn>
+                </v-layout>
+              </v-flex>
+            </v-layout>
+          </v-card-actions>
+        </v-card>
+      </v-col>  
+    </v-row> 
+  </v-container>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
+import { CallClient } from "@azure/communication-calling";
+import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+  export default {
+    name: 'HelloWorld',
+    data: () => ({
+      call:"",
+      callAgent: "",
+      userAccesToken: null,
+      idUser:"",
+      callButton: null,
+      submitToken: null,
+      hangUpButton: null,
+      endpointApiAuth: "https://localhost:44301/api/Auth/GetToken"
+    }),
+    async created() {
+      console.log('At this point, this.property is now reactive and propertyComputed will update.')
+      
+    },
+    methods: {
+      async login(){
+        console.log("login");
+        this.userAccesToken = null;
+
+        const response = await fetch(this.endpointApiAuth);
+        const data = await response.json();
+        this.userAccesToken = data.token;
+        console.log(this.userAccesToken);
+      },
+      refreshToken(){
+
+      },
+      async startAgentCall(){
+        console.log("startAgentCall");
+
+        const callClient = new CallClient(); 
+        const userTokenCredential = this.userAccesToken;
+
+        try {
+          let tokenCredential = new AzureCommunicationTokenCredential(userTokenCredential);
+          this.callAgent = await callClient.createCallAgent(tokenCredential);
+          this.callButton = false;
+          this.submitToken = true;
+        } catch(error) {
+          window.alert("Please submit a valid token!");
+        }
+
+      },
+      startCall() {
+        console.log("startCall");
+        // start a call
+        //let userToCall = calleeInput.value;
+        //let userToCall = {id: '8:echo123'};
+        // To call an ACS communication user, use {communicationUserId: 'ACS_USER_ID'}.
+        // To call echobot, use {id: '8:echo123'}.
+        this.call = this.callAgent.startCall([{ id: '8:echo123' }],{});
+        // toggle button states
+        this.hangUpButton = false;
+        this.callButton = true;
+      },
+      hangUp(){
+        // end the current call
+        console.log("hangUp");
+        this.call.hangUp({ forEveryone: true });
+
+        // toggle button states
+        this.hangUpButton = true;
+        this.callButton = false;
+        this.submitToken = false;
+      }
+  },
+  }
+</script>
