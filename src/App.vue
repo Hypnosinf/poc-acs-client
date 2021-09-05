@@ -4,6 +4,7 @@
       app
       color="primary"
       dark
+      v-if="HomeScreen"
     >
       <div class="d-flex align-center">
         <v-img
@@ -50,6 +51,13 @@ export default {
 
   data: () => ({
     //
+    HomeScreen: null
   }),
+   async created() {
+      console.log(this.$route)
+      if(this.$route.name === "HomeScreen"){
+        this.HomeScreen = false;
+      }
+    },
 };
 </script>

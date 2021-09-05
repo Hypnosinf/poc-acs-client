@@ -44,7 +44,7 @@ export default {
     LoadingScreen
   },
   data: () => ({
-    isLoading: true,
+    isLoading: false,
     title: "Comienza ahora",
     subtitulo: "",
     call: "",
