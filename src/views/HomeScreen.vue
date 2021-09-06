@@ -29,31 +29,33 @@
       </v-col>
     </v-row>
     <LoadingScreen v-if="isLoading"></LoadingScreen>
+    <v-snackbar v-model="snackbar" :multi-line="multiLine">
+      {{ text }}
+        <template v-slot:action="{ attrs }">
+          <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+            Close
+          </v-btn>
+        </template>
+    </v-snackbar>
   </v-container>
   
 </template>
 
 <script>
 import LoadingScreen from "@/components/LoadingScreen";
-import { CallClient } from "@azure/communication-calling";
-import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default {
-  name: "HelloWorld",
+  name: "HomeScreen",
   components: {
     LoadingScreen
   },
   data: () => ({
+    multiLine: true,
+    snackbar: false,
+    text: `Ocurrio un error, probar nuevamente`,
+    title: "Comenzar llamada",
     isLoading: false,
-    title: "Comienza ahora",
-    subtitulo: "",
-    call: "",
-    callAgent: "",
     userAccesToken: null,
-    idUser: "",
-    callButton: null,
-    submitToken: null,
-    hangUpButton: null,
     endpointApiAuth: "https://localhost:44301/api/Auth/GetToken",
   }),
   async created() {
@@ -66,51 +68,28 @@ export default {
       console.log("login");
       this.userAccesToken = null;
 
-      const response = await fetch(this.endpointApiAuth);
-      const data = await response.json();
-      this.userAccesToken = data.token;
-      console.log(this.userAccesToken);
-    },
-    refreshToken() {},
-    async startAgentCall() {
-      console.log("startAgentCall");
-
-      const callClient = new CallClient();
-      const userTokenCredential = this.userAccesToken;
-
       try {
-        let tokenCredential = new AzureCommunicationTokenCredential(
-          userTokenCredential
-        );
-        this.callAgent = await callClient.createCallAgent(tokenCredential);
-        this.callButton = false;
-        this.submitToken = true;
-      } catch (error) {
-        window.alert("Please submit a valid token!");
-      }
-    },
-    startCall() {
-      console.log("startCall");
-      // start a call
-      //let userToCall = calleeInput.value;
-      //let userToCall = {id: '8:echo123'};
-      // To call an ACS communication user, use {communicationUserId: 'ACS_USER_ID'}.
-      // To call echobot, use {id: '8:echo123'}.
-      this.call = this.callAgent.startCall([{ id: "8:echo123" }], {});
-      // toggle button states
-      this.hangUpButton = false;
-      this.callButton = true;
-    },
-    hangUp() {
-      // end the current call
-      console.log("hangUp");
-      this.call.hangUp({ forEveryone: true });
+        this.isLoading = true;
 
-      // toggle button states
-      this.hangUpButton = true;
-      this.callButton = false;
-      this.submitToken = false;
-    },
+        const response = await fetch(this.endpointApiAuth);
+        const data = await response.json();
+        console.log("dataResponse", data);
+        this.userAccesToken = data.token;
+
+        await this.$store.dispatch('acs/setToken', this.userAccesToken)
+        console.log(this.userAccesToken);
+        this.$router.push('local-preview')
+
+        this.isLoading = false;
+      } catch (error) {
+        this.isLoading = false;
+        this.snackbar = true;
+      }
+
+      console.log("store", this.$store);
+      
+     
+    }
   },
 };
 </script>
