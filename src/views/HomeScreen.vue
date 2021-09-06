@@ -55,40 +55,47 @@ export default {
     text: `Ocurrio un error, probar nuevamente`,
     title: "Comenzar llamada",
     isLoading: false,
-    userAccesToken: null,
     endpointApiAuth: "https://localhost:44301/api/Auth/GetToken",
   }),
   async created() {
     console.log(
-      "At this point, this.property is now reactive and propertyComputed will update."
+      "Created."
     );
   },
   methods: {
     async login() {
       console.log("login");
-      this.userAccesToken = null;
-
       try {
         this.isLoading = true;
+
+        let userAccesToken = null;
+        let identityId = null;
+        let expiresOn = null;
 
         const response = await fetch(this.endpointApiAuth);
         const data = await response.json();
         console.log("dataResponse", data);
-        this.userAccesToken = data.token;
 
-        await this.$store.dispatch('acs/setToken', this.userAccesToken)
-        console.log(this.userAccesToken);
-        this.$router.push('local-preview')
+        if(data.error == null){
+          userAccesToken = data.token;
+          identityId = data.identityId;
+          expiresOn = data.expiresOn;
 
-        this.isLoading = false;
+          await this.$store.dispatch('acs/setToken', userAccesToken)
+          await this.$store.dispatch('acs/setIdentityId', identityId)
+          await this.$store.dispatch('acs/setExpiresOn', expiresOn)
+          this.isLoading = false;
+          this.$router.push('local-preview')
+        }else{
+          console.error(data.error);
+        }
+             
       } catch (error) {
+        console.error(error)
         this.isLoading = false;
         this.snackbar = true;
       }
 
-      console.log("store", this.$store);
-      
-     
     }
   },
 };

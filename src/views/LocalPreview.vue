@@ -5,7 +5,7 @@
         <v-card class="mx-auto" max-width="344">
           <v-card-text>
             <div>Word of the Day</div>
-            <div ref="localVideoContainer" style="width: 30%;">Local video stream:</div>
+            <div ref="localVideoContainer" style="width: 80%;">Local video stream:</div>
           </v-card-text>
           <v-card-actions>
             <v-container class="px-0" fluid>
@@ -53,11 +53,11 @@
 
       <v-col cols="4">
         <v-form ref="form" v-model="valid" lazy-validation>
-          <v-text-field
+         <!--  <v-text-field
             v-model="userAccesToken"
             label="User access token"
             
-          ></v-text-field>
+          ></v-text-field> -->
 
           <v-text-field
             v-model="calleeAcsUserId"
@@ -115,6 +115,7 @@ export default {
     incomingCall: null,
     userAccesToken: null,
     calleeAcsUserId: null,
+    tokenExpiresOn: null,
     acceptCallButton: true,
     startCallButton: true,
     hangUpCallButton: true,
@@ -137,12 +138,13 @@ export default {
     items: ["Item 1", "Item 2", "Item 3", "Item 4"],
   }),
   async created() {
-    console.log(
-      "At this point, this.property is now reactive and propertyComputed will update."
-    );
-    //let token = await this.$store.getters["acs/getToken"];
-    //console.log("token", token);
-    //this.userAccesToken = token;
+    let token = await this.$store.getters["acs/getToken"];
+    let identityId = await this.$store.getters["acs/getIdentityId"];
+    let expiresOn = await this.$store.getters["acs/getExpiresOn"];
+
+    this.userAccesToken = token;
+    this.calleeAcsUserId = identityId;
+    this.tokenExpiresOn = expiresOn;
   },
   async mounted() {
     this.localVideoContainer = this.$refs.localVideoContainer;

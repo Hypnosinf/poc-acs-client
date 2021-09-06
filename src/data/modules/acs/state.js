@@ -1,3 +1,5 @@
 export default {
-  token: null
+  token: null,
+  identityId: null,
+  expiresOn: null
 }
