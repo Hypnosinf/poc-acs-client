@@ -6,9 +6,10 @@
           <v-card-text>
             <div>Word of the Day</div>
             <div ref="localVideoContainer" style="width: 100%;">Local video stream:</div>
+            <div ref="remoteVideoContainer" style="width: 100%;">Remote video stream:</div>
           </v-card-text>
           <v-card-actions>
-            <v-container class="px-0" fluid>
+            <!-- <v-container class="px-0" fluid>
               <v-row>
                 <v-col cols="6">
                   <v-switch
@@ -23,7 +24,7 @@
                   ></v-switch>
                 </v-col>
               </v-row>
-            </v-container>
+            </v-container> -->
           </v-card-actions>
 
           <v-expand-transition>
@@ -109,6 +110,7 @@ export default {
   components: {},
   data: () => ({
     localVideoContainer: null,
+    remoteVideoContainer: null,
     call: null,
     callAgent: null,
     deviceManager: null,
@@ -148,6 +150,7 @@ export default {
   },
   async mounted() {
     this.localVideoContainer = this.$refs.localVideoContainer;
+    this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
     async initializeCallAgent() {
