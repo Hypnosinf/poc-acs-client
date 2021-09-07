@@ -55,7 +55,8 @@ export default {
     text: `Ocurrio un error, probar nuevamente`,
     title: "Comenzar llamada",
     isLoading: false,
-    endpointApiAuth: "https://localhost:44301/api/Auth/GetToken",
+    endpointApiAuth: "https://app-service-poc-jaibo.azurewebsites.net/api/Auth/GetToken",
+    // "https://localhost:44301/api/Auth/GetToken",
   }),
   async created() {
     console.log(
