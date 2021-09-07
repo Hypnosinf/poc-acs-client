@@ -2,10 +2,10 @@
   <v-container fill-height fluid>
     <v-row align-content="center" justify="center">
       <v-col cols="4">
-        <v-card class="mx-auto" max-width="344">
+        <v-card class="mx-auto" max-width="460">
           <v-card-text>
             <div>Word of the Day</div>
-            <div ref="localVideoContainer" style="width: 80%;">Local video stream:</div>
+            <div ref="localVideoContainer" style="width: 100%;">Local video stream:</div>
           </v-card-text>
           <v-card-actions>
             <v-container class="px-0" fluid>
