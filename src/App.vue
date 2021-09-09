@@ -5,35 +5,36 @@
       color="primary"
       dark
       v-if="HomeScreen"
+      clas="ma-0 pa-0"
     >
       <div class="d-flex align-center">
         <v-img
-          alt="Vuetify Logo"
+          alt="Bridgepoint Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="./assets/img/bridgepoint.jpeg"
           transition="scale-transition"
-          width="40"
+          width="150"
         />
 
-        <v-img
+        <!-- <v-img
           alt="Vuetify Name"
           class="shrink mt-1 hidden-sm-and-down"
           contain
           min-width="100"
           src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
           width="100"
-        />
+        /> -->
       </div>
 
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
+        href="https://www.google.com/"
         target="_blank"
         text
       >
-        <span class="mr-2">Latest Release</span>
+        <span class="mr-2">Cliente</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
@@ -50,13 +51,13 @@ export default {
   name: 'App',
 
   data: () => ({
-    //
+    logo: "",
     HomeScreen: null
   }),
    async created() {
       console.log(this.$route)
       if(this.$route.name === "HomeScreen"){
-        this.HomeScreen = false;
+        this.HomeScreen = true;
       }
     },
 };

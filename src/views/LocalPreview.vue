@@ -4,7 +4,7 @@
       <v-col cols="4">
         <v-card class="mx-auto" max-width="460">
           <v-card-text>
-            <div>Word of the Day</div>
+            <!-- <div>Word of the Day</div> -->
             <div ref="localVideoContainer" style="width: 100%;">Local video stream:</div>
             <div ref="remoteVideoContainer" style="width: 100%;">Remote video stream:</div>
           </v-card-text>
@@ -60,11 +60,11 @@
             
           ></v-text-field> -->
 
-          <v-text-field
+         <!--  <v-text-field
             v-model="calleeAcsUserId"
             label="ACS user identity in format: '8:acs:resourceId_userId"
             
-          ></v-text-field>
+          ></v-text-field> -->
 
           <!-- <v-text-field
             v-model="name"
@@ -89,10 +89,10 @@
             required
           ></v-select> -->
 
-          <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn>
+         <!--  <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn> -->
           <v-btn color="success" class="mr-4" @click="startCall" :disabled="startCallButton"> Start Call </v-btn>
           <v-btn color="error" class="mr-4" @click="hangUpCall" :disabled="hangUpCallButton"> Hang Up </v-btn>
-          <v-btn color="info" class="mr-4" @click="acceptCall" :disabled="acceptCallButton"> Accept Call </v-btn>
+          <!-- <v-btn color="info" class="mr-4" @click="acceptCall" :disabled="acceptCallButton"> Accept Call </v-btn> -->
 
         </v-form>
       </v-col>
@@ -147,6 +147,8 @@ export default {
     this.userAccesToken = token;
     this.calleeAcsUserId = identityId;
     this.tokenExpiresOn = expiresOn;
+
+    await this.initializeCallAgent();
   },
   async mounted() {
     this.localVideoContainer = this.$refs.localVideoContainer;
