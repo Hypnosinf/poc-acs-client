@@ -5,8 +5,12 @@
         <v-card class="mx-auto" max-width="460">
           <v-card-text>
             <!-- <div>Word of the Day</div> -->
-            <div ref="localVideoContainer" style="width: 100%;">Local video stream:</div>
-            <div ref="remoteVideoContainer" style="width: 100%;">Remote video stream:</div>
+            <div ref="localVideoContainer" style="width: 100%">
+              Local video stream:
+            </div>
+            <div ref="remoteVideoContainer" style="width: 100%">
+              Remote video stream:
+            </div>
           </v-card-text>
           <v-card-actions>
             <!-- <v-container class="px-0" fluid>
@@ -48,19 +52,18 @@
               </v-card-actions>
             </v-card>
           </v-expand-transition>
-
         </v-card>
       </v-col>
 
       <v-col cols="4">
         <v-form ref="form" v-model="valid" lazy-validation>
-         <!--  <v-text-field
+          <!--  <v-text-field
             v-model="userAccesToken"
             label="User access token"
             
           ></v-text-field> -->
 
-         <!--  <v-text-field
+          <!--  <v-text-field
             v-model="calleeAcsUserId"
             label="ACS user identity in format: '8:acs:resourceId_userId"
             
@@ -89,11 +92,24 @@
             required
           ></v-select> -->
 
-         <!--  <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn> -->
-          <v-btn color="success" class="mr-4" @click="startCall" :disabled="startCallButton"> Start Call </v-btn>
-          <v-btn color="error" class="mr-4" @click="hangUpCall" :disabled="hangUpCallButton"> Hang Up </v-btn>
+          <!--  <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn> -->
+          <v-btn
+            color="success"
+            class="mr-4"
+            @click="startCall"
+            :disabled="startCallButton"
+          >
+            Start Call
+          </v-btn>
+          <v-btn
+            color="error"
+            class="mr-4"
+            @click="hangUpCall"
+            :disabled="hangUpCallButton"
+          >
+            Hang Up
+          </v-btn>
           <!-- <v-btn color="info" class="mr-4" @click="acceptCall" :disabled="acceptCallButton"> Accept Call </v-btn> -->
-
         </v-form>
       </v-col>
     </v-row>
@@ -101,8 +117,14 @@
 </template>
 
 <script>
-const { CallClient, VideoStreamRenderer, LocalVideoStream } = require('@azure/communication-calling');
-const { AzureCommunicationTokenCredential } = require('@azure/communication-common');
+const {
+  CallClient,
+  VideoStreamRenderer,
+  LocalVideoStream,
+} = require("@azure/communication-calling");
+const {
+  AzureCommunicationTokenCredential,
+} = require("@azure/communication-common");
 const { AzureLogger, setLogLevel } = require("@azure/logger");
 
 export default {
@@ -141,11 +163,11 @@ export default {
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
-    let identityId = await this.$store.getters["acs/getIdentityId"];
+    //let identityId = await this.$store.getters["acs/getIdentityId"];
     let expiresOn = await this.$store.getters["acs/getExpiresOn"];
 
     this.userAccesToken = token;
-    this.calleeAcsUserId = identityId;
+    //this.calleeAcsUserId = identityId;
     this.tokenExpiresOn = expiresOn;
 
     await this.initializeCallAgent();
@@ -168,7 +190,7 @@ export default {
         this.callAgent = await callClient.createCallAgent(tokenCredential);
 
         this.deviceManager = await callClient.getDeviceManager();
-        console.log("this.deviceManager",this.deviceManager);
+        console.log("this.deviceManager", this.deviceManager);
         await this.deviceManager.askDevicePermission({ video: true });
         await this.deviceManager.askDevicePermission({ audio: true });
 
@@ -183,21 +205,34 @@ export default {
           }
         });
 
+
+        let agentResponse = await this.getAvailableAgent();
+        this.calleeAcsUserId = agentResponse.identityId;
         this.startCallButton = false;
         this.initializeCallAgentButton = true;
       } catch (error) {
         window.alert("Please submit a valid token!");
       }
     },
+    async getAvailableAgent() {
+      try {
+        let response = await fetch("https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent");
+        let agent = await response.json();
+        console.log("AGENT", agent);
+        return agent;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async startCall() {
       console.log("startCall");
       try {
         const localVideoStream = await this.createLocalVideoStream();
-        console.log("localVideoStream",localVideoStream);
+        console.log("localVideoStream", localVideoStream);
         const videoOptions = localVideoStream
           ? { localVideoStreams: [localVideoStream] }
           : undefined;
-        console.log("videoOptions",videoOptions);
+        console.log("videoOptions", videoOptions);
         this.call = this.callAgent.startCall(
           [{ communicationUserId: this.calleeAcsUserId }],
           { videoOptions }
@@ -361,61 +396,59 @@ export default {
     },
 
     async startVideo() {
-    try {
-      this.localVideoStream = await this.createLocalVideoStream();
-      await this.call.startVideo(this.localVideoStream);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+      try {
+        this.localVideoStream = await this.createLocalVideoStream();
+        await this.call.startVideo(this.localVideoStream);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async stopVideo() {
-    try {
-      await this.call.stopVideo(this.localVideoStream);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    async stopVideo() {
+      try {
+        await this.call.stopVideo(this.localVideoStream);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async createLocalVideoStream() {
-    const camera = (await this.deviceManager.getCameras())[0];
-    if (camera) {
-      return new LocalVideoStream(camera);
-    } else {
-      console.error(`No camera device found on the system`);
-    }
-  },
+    async createLocalVideoStream() {
+      const camera = (await this.deviceManager.getCameras())[0];
+      if (camera) {
+        return new LocalVideoStream(camera);
+      } else {
+        console.error(`No camera device found on the system`);
+      }
+    },
 
-  async displayLocalVideoStream() {
-    console.log("displayLocalVideoStream")
-    try {
-      this.localVideoStreamRenderer = new VideoStreamRenderer(this.localVideoStream);
-      const view = await this.localVideoStreamRenderer.createView();
-      //this.localVideoContainer.hidden = false;
-      this.localVideoContainer.appendChild(view.target);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    async displayLocalVideoStream() {
+      console.log("displayLocalVideoStream");
+      try {
+        this.localVideoStreamRenderer = new VideoStreamRenderer(
+          this.localVideoStream
+        );
+        const view = await this.localVideoStreamRenderer.createView();
+        //this.localVideoContainer.hidden = false;
+        this.localVideoContainer.appendChild(view.target);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  // Remove your local video stream preview from your UI
-  async removeLocalVideoStream() {
-    try {
-      this.localVideoStreamRenderer.dispose();
-      //this.localVideoContainer.hidden = true;
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    // Remove your local video stream preview from your UI
+    async removeLocalVideoStream() {
+      try {
+        this.localVideoStreamRenderer.dispose();
+        //this.localVideoContainer.hidden = true;
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async hangUpCall() {
-    // end the current call
-    await this.call.hangUp();
-  },
-
-
-  },//end methods
-
-  
+    async hangUpCall() {
+      // end the current call
+      await this.call.hangUp();
+    },
+  }, //end methods
 };
 </script>

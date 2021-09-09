@@ -77,7 +77,7 @@ export default {
         let expiresOn = null;
         var bodyRequest = { consumer: "client" };
   
-        let responseAuth = await this.postData("https://localhost:44301/api/Auth/GetToken", bodyRequest);
+        let responseAuth = await this.postData(this.endpointApiAuth, bodyRequest);
         console.log("Response", responseAuth);
 
         if (responseAuth.error == null) {
