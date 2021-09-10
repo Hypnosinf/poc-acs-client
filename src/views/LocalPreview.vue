@@ -2,104 +2,36 @@
   <v-container fill-height fluid>
     <v-row align-content="center" justify="center">
       <v-col cols="4">
-        <v-card class="mx-auto" max-width="460">
-          <v-card-text>
-            <!-- <div>Word of the Day</div> -->
-            <div ref="localVideoContainer" style="width: 100%">
-              Local video stream:
-            </div>
-            <div ref="remoteVideoContainer" style="width: 100%">
-              Remote video stream:
-            </div>
-          </v-card-text>
-          <v-card-actions>
-            <!-- <v-container class="px-0" fluid>
-              <v-row>
-                <v-col cols="6">
-                  <v-switch
-                    v-model="switch1"
-                    prepend-icon="mdi-video"
-                  ></v-switch>
-                </v-col>
-                <v-col cols="6">
-                  <v-switch
-                    prepend-icon="mdi-microphone "
-                    v-model="switch2"
-                  ></v-switch>
-                </v-col>
-              </v-row>
-            </v-container> -->
-          </v-card-actions>
-
-          <v-expand-transition>
-            <v-card
-              v-if="reveal"
-              class="transition-fast-in-fast-out v-card--reveal"
-              style="height: 100%"
-            >
-              <v-card-text class="pb-0">
-                <p class="text-h4 text--primary">Origin</p>
-                <p>
-                  late 16th century (as a noun denoting a place where alms were
-                  distributed): from medieval Latin eleemosynarius, from late
-                  Latin eleemosyna ‘alms’, from Greek eleēmosunē ‘compassion’
-                </p>
-              </v-card-text>
-              <v-card-actions class="pt-0">
-                <v-btn text color="teal accent-4" @click="reveal = false">
-                  Close
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-expand-transition>
-        </v-card>
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-card class="mx-auto" max-width="460" v-show="LocalVideoActive">
+                <div ref="localVideoContainer" style="width: 100%">
+                  Local video stream:
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12">
+              <v-card class="mx-auto" max-width="460"  v-show="RemoteVideoActive">
+                <div ref="remoteVideoContainer" style="width: 100%">
+                  Remote video stream:
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
 
       <v-col cols="4">
         <v-form ref="form" v-model="valid" lazy-validation>
-          <!--  <v-text-field
-            v-model="userAccesToken"
-            label="User access token"
-            
-          ></v-text-field> -->
-
-          <!--  <v-text-field
-            v-model="calleeAcsUserId"
-            label="ACS user identity in format: '8:acs:resourceId_userId"
-            
-          ></v-text-field> -->
-
-          <!-- <v-text-field
-            v-model="name"
-            :counter="10"
-            :rules="nameRules"
-            label="Name"
-            required
-          ></v-text-field>
-
-          <v-text-field
-            v-model="email"
-            :rules="emailRules"
-            label="E-mail"
-            required
-          ></v-text-field>
- -->
-          <!--   <v-select
-            v-model="select"
-            :items="items"
-            :rules="[(v) => !!v || 'Item is required']"
-            label="Item"
-            required
-          ></v-select> -->
-
-          <!--  <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn> -->
+          
           <v-btn
             color="success"
             class="mr-4"
             @click="startCall"
             :disabled="startCallButton"
           >
-            Start Call
+            Llamar
           </v-btn>
           <v-btn
             color="error"
@@ -107,9 +39,9 @@
             @click="hangUpCall"
             :disabled="hangUpCallButton"
           >
-            Hang Up
+           Colgar
           </v-btn>
-          <!-- <v-btn color="info" class="mr-4" @click="acceptCall" :disabled="acceptCallButton"> Accept Call </v-btn> -->
+         
         </v-form>
       </v-col>
     </v-row>
@@ -131,6 +63,8 @@ export default {
   name: "LocalPreview",
   components: {},
   data: () => ({
+    LocalVideoActive: false,
+    RemoteVideoActive: false,
     localVideoContainer: null,
     remoteVideoContainer: null,
     call: null,
@@ -205,7 +139,6 @@ export default {
           }
         });
 
-
         let agentResponse = await this.getAvailableAgent();
         this.calleeAcsUserId = agentResponse.identityId;
         this.startCallButton = false;
@@ -216,7 +149,9 @@ export default {
     },
     async getAvailableAgent() {
       try {
-        let response = await fetch("https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent");
+        let response = await fetch(
+          "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
+        );
         let agent = await response.json();
         console.log("AGENT", agent);
         return agent;
@@ -366,7 +301,7 @@ export default {
           // Create a renderer view for the remote video stream.
           view = await videoStreamRenderer.createView();
           // Attach the renderer view to the UI.
-          //this.remoteVideoContainer.hidden = false;
+          this.RemoteVideoActive = true;
           this.remoteVideoContainer.appendChild(view.target);
         } catch (e) {
           console.warn(
@@ -428,7 +363,8 @@ export default {
           this.localVideoStream
         );
         const view = await this.localVideoStreamRenderer.createView();
-        //this.localVideoContainer.hidden = false;
+        
+        this.LocalVideoActive = true;
         this.localVideoContainer.appendChild(view.target);
       } catch (error) {
         console.error(error);
@@ -439,7 +375,7 @@ export default {
     async removeLocalVideoStream() {
       try {
         this.localVideoStreamRenderer.dispose();
-        //this.localVideoContainer.hidden = true;
+         this.LocalVideoActive = false;
       } catch (error) {
         console.error(error);
       }

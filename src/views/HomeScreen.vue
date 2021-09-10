@@ -2,7 +2,7 @@
   <v-container fill-height fluid>
     <v-row>
       <v-col>
-        <v-card class="mx-auto" max-width="344" outlined>
+        <v-card class="mx-auto" max-width="365" elevation="0">
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="text-h5 mb-1">
@@ -23,8 +23,8 @@
             <v-row align-content="center" justify="center">
               <v-col>
                 <div class="text-center">
-                  <v-btn class="ma-2" color="success" dark @click="login">
-                    <v-icon dark x-large> mdi-phone </v-icon>
+                  <v-btn class="big-button ma-2" color="success" dark @click="login">
+                    <v-icon dark x-large> mdi-gesture-double-tap </v-icon>
                   </v-btn>
                 </div>
               </v-col>
@@ -120,3 +120,11 @@ export default {
   },
 };
 </script>
+
+<style>
+.big-button {
+  height: 71px !important;
+  min-width: 64px !important;
+  padding: 5px 20px !important;
+}
+</style>

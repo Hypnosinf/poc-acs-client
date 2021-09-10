@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="app">
     <v-app-bar
       app
       color="primary"
@@ -62,3 +62,13 @@ export default {
     },
 };
 </script>
+
+<style>
+#app {
+  background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
+   /*  background: white; */
+}
+.v-toolbar__content {
+  padding: 0 !important;
+}
+</style>
