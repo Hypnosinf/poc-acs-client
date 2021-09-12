@@ -1,18 +1,11 @@
 <template>
   <v-container fill-height fluid>
-    <v-row align-content="center" justify="center">
-      <v-col cols="4">
-        <v-container>
-          <v-row>
+    <v-row align-content="center" justify="center" class="full-ht">
+      <v-col cols="6" style="" class="">
+        <v-container fill-height>
+          <v-row align-content="center" justify="center">
             <v-col cols="12">
-              <v-card class="mx-auto" max-width="460" v-show="LocalVideoActive">
-                <div ref="localVideoContainer" style="width: 100%">
-                  Local video stream:
-                </div>
-              </v-card>
-            </v-col>
-            <v-col cols="12">
-              <v-card class="mx-auto" max-width="460"  v-show="RemoteVideoActive">
+              <v-card class="mx-auto" max-width="460" v-show="true">
                 <div ref="remoteVideoContainer" style="width: 100%">
                   Remote video stream:
                 </div>
@@ -22,29 +15,64 @@
         </v-container>
       </v-col>
 
-      <v-col cols="4">
-        <v-form ref="form" v-model="valid" lazy-validation>
-          
-          <v-btn
-            color="success"
-            class="mr-4"
-            @click="startCall"
-            :disabled="startCallButton"
-          >
-            Llamar
-          </v-btn>
-          <v-btn
-            color="error"
-            class="mr-4"
-            @click="hangUpCall"
-            :disabled="hangUpCallButton"
-          >
-           Colgar
-          </v-btn>
-         
-        </v-form>
+      <v-col cols="6">
+        <v-container fill-height>
+          <v-row align-content="center" justify="center">
+            <v-col cols="12" style="" class="full-m">
+              <v-card class="mx-auto" max-width="460" v-show="true">
+                <div ref="localVideoContainer" style="width: 100%">
+                  Local video stream:
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" style="" class="full-m">
+              <v-container fill-height>
+                <v-row align-content="center" justify="center">
+                  <v-col>
+                    <div class="text-center">
+                      <v-btn
+                        color="info"
+                        class="mr-4"
+                        @click="startCall"
+                        :disabled="startCallButton"
+                      >
+                        Llamar
+                      </v-btn>
+
+                      <v-btn
+                        color="error"
+                        class="mr-4"
+                        @click="hangUpCall"
+                        :disabled="hangUpCallButton"
+                      >
+                        Colgar
+                      </v-btn>
+
+                      <v-btn
+                        color="info"
+                        class="mr-4"
+                        @click="testSetAgent"
+                        :disabled="false"
+                      >
+                        test
+                      </v-btn>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" :multi-line="multiLine">
+      {{ text }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -63,6 +91,9 @@ export default {
   name: "LocalPreview",
   components: {},
   data: () => ({
+    multiLine: true,
+    snackbar: false,
+    text: `Agentes no disponibles`,
     LocalVideoActive: false,
     RemoteVideoActive: false,
     localVideoContainer: null,
@@ -80,20 +111,7 @@ export default {
     initializeCallAgentButton: false,
     switch1: true,
     switch2: true,
-    reveal: false,
     valid: true,
-    name: "",
-    nameRules: [
-      (v) => !!v || "Name is required",
-      (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
-    ],
-    email: "",
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-    ],
-    select: null,
-    items: ["Item 1", "Item 2", "Item 3", "Item 4"],
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -111,8 +129,12 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
+    async testSetAgent() {
+      let agentResponse = await this.getAvailableAgent();
+      console.log("agentResponse", agentResponse);
+    },
     async initializeCallAgent() {
-      console.log("initializeCallAgent");
+      console.log("initializeCallAgent", this.userAccesToken);
 
       const callClient = new CallClient();
       const userTokenCredential = this.userAccesToken;
@@ -140,10 +162,17 @@ export default {
         });
 
         let agentResponse = await this.getAvailableAgent();
-        this.calleeAcsUserId = agentResponse.identityId;
-        this.startCallButton = false;
-        this.initializeCallAgentButton = true;
+
+        if (agentResponse.available != false) {
+          this.calleeAcsUserId = agentResponse.identityId;
+          this.startCallButton = false;
+          this.initializeCallAgentButton = true;
+        } else {
+          console.log("NO HAY AGENTES");
+          this.snackbar = true;
+        }
       } catch (error) {
+        console.error("ERROR", error);
         window.alert("Please submit a valid token!");
       }
     },
@@ -152,8 +181,11 @@ export default {
         let response = await fetch(
           "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
         );
+        /* let response = await fetch(
+          "https://localhost:44301/api/Agent/GetAvailableAgent"
+        ); */
         let agent = await response.json();
-        console.log("AGENT", agent);
+        console.log("AGENTREsponse", agent);
         return agent;
       } catch (error) {
         console.error(error);
@@ -284,6 +316,7 @@ export default {
           });
           // Unsubscribe from remote participant's video streams that were removed.
           e.removed.forEach((remoteVideoStream) => {
+            this.RemoteVideoActive = false;
             console.log("Remote participant video stream was removed.");
           });
         });
@@ -363,7 +396,7 @@ export default {
           this.localVideoStream
         );
         const view = await this.localVideoStreamRenderer.createView();
-        
+
         this.LocalVideoActive = true;
         this.localVideoContainer.appendChild(view.target);
       } catch (error) {
@@ -375,7 +408,7 @@ export default {
     async removeLocalVideoStream() {
       try {
         this.localVideoStreamRenderer.dispose();
-         this.LocalVideoActive = false;
+        this.LocalVideoActive = false;
       } catch (error) {
         console.error(error);
       }
@@ -388,3 +421,13 @@ export default {
   }, //end methods
 };
 </script>
+
+<style>
+.full-ht {
+  height: 100vh;
+  position: relative;
+}
+.full-m {
+  height: 50vh;
+}
+</style>
