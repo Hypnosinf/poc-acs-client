@@ -19,7 +19,7 @@
         <v-container fill-height>
           <v-row align-content="center" justify="center">
             <v-col cols="12" style="" class="full-m">
-              <v-card class="mx-auto" max-width="460" v-show="true">
+              <v-card class="mx-auto" max-width="800" v-show="true">
                 <div ref="localVideoContainer" style="width: 100%">
                   Local video stream:
                 </div>
@@ -31,7 +31,7 @@
                   <v-col>
                     <div class="text-center">
                       <v-btn
-                        color="info"
+                        color="success"
                         class="mr-4"
                         @click="startCall"
                         :disabled="startCallButton"
@@ -48,14 +48,14 @@
                         Colgar
                       </v-btn>
 
-                      <v-btn
+                     <!--  <v-btn
                         color="info"
                         class="mr-4"
                         @click="testSetAgent"
                         :disabled="false"
                       >
                         test
-                      </v-btn>
+                      </v-btn> -->
                     </div>
                   </v-col>
                 </v-row>
@@ -178,12 +178,12 @@ export default {
     },
     async getAvailableAgent() {
       try {
-        let response = await fetch(
-          "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
-        );
         /* let response = await fetch(
-          "https://localhost:44301/api/Agent/GetAvailableAgent"
+          "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
         ); */
+        let response = await fetch(
+          "https://localhost:44301/api/Agent/GetAvailableAgent"
+        );
         let agent = await response.json();
         console.log("AGENTREsponse", agent);
         return agent;
