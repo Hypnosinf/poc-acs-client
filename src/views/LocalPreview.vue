@@ -5,10 +5,8 @@
         <v-container fill-height>
           <v-row align-content="center" justify="center">
             <v-col cols="12">
-              <v-card class="mx-auto" max-width="460" v-show="true">
-                <div ref="remoteVideoContainer" style="width: 100%">
-                  Remote video stream:
-                </div>
+              <v-card class="mx-auto" max-width="800" v-show="true">
+                <div ref="remoteVideoContainer" style="width: 100%">Agente</div>
               </v-card>
             </v-col>
           </v-row>
@@ -19,10 +17,8 @@
         <v-container fill-height>
           <v-row align-content="center" justify="center">
             <v-col cols="12" style="" class="full-m">
-              <v-card class="mx-auto" max-width="800" v-show="true">
-                <div ref="localVideoContainer" style="width: 100%">
-                  Local video stream:
-                </div>
+              <v-card class="mx-auto" max-width="400" v-show="true">
+                <div ref="localVideoContainer" style="width: 100%">Cliente</div>
               </v-card>
             </v-col>
             <v-col cols="12" style="" class="full-m">
@@ -48,7 +44,7 @@
                         Colgar
                       </v-btn>
 
-                     <!--  <v-btn
+                      <!--  <v-btn
                         color="info"
                         class="mr-4"
                         @click="testSetAgent"
@@ -112,6 +108,8 @@ export default {
     switch1: true,
     switch2: true,
     valid: true,
+    endpointApiDeleteAgent: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/RemoveAgent",
+    agentId: null
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -129,6 +127,15 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
+     async RemoveAgent(){
+      var bodyRequest = { id: this.agentId };
+
+        let responseRemoveAgent = await this.DeleteData(
+          this.endpointApiDeleteAgent,
+          bodyRequest
+        );
+        console.log("Response", responseRemoveAgent);
+    },
     async testSetAgent() {
       let agentResponse = await this.getAvailableAgent();
       console.log("agentResponse", agentResponse);
@@ -165,6 +172,7 @@ export default {
 
         if (agentResponse.available != false) {
           this.calleeAcsUserId = agentResponse.identityId;
+          this.agentId = agentResponse.id;
           this.startCallButton = false;
           this.initializeCallAgentButton = true;
         } else {
@@ -181,7 +189,7 @@ export default {
         let response = await fetch(
           "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
         );
-       /*  let response = await fetch(
+        /*  let response = await fetch(
           "https://localhost:44301/api/Agent/GetAvailableAgent"
         ); */
         let agent = await response.json();
@@ -206,6 +214,7 @@ export default {
         );
         // Subscribe to the call's properties and events.
         this.subscribeToCall(this.call);
+        this.startCallButton = false;
       } catch (error) {
         console.error(error);
       }
@@ -416,7 +425,26 @@ export default {
 
     async hangUpCall() {
       // end the current call
+      this.RemoveAgent();
       await this.call.hangUp();
+       this.$router.push("/");
+    },
+    async DeleteData(url = "", data = {}) {
+      // Opciones por defecto estan marcadas con un *
+      const response = await fetch(url, {
+        method: "DELETE", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data), // body data type must match "Content-Type" header
+      });
+      return response.json(); // parses JSON response into native JavaScript objects
     },
   }, //end methods
 };
