@@ -178,12 +178,12 @@ export default {
     },
     async getAvailableAgent() {
       try {
-        /* let response = await fetch(
-          "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
-        ); */
         let response = await fetch(
-          "https://localhost:44301/api/Agent/GetAvailableAgent"
+          "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/GetAvailableAgent"
         );
+       /*  let response = await fetch(
+          "https://localhost:44301/api/Agent/GetAvailableAgent"
+        ); */
         let agent = await response.json();
         console.log("AGENTREsponse", agent);
         return agent;
