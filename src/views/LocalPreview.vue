@@ -108,8 +108,9 @@ export default {
     switch1: true,
     switch2: true,
     valid: true,
-    endpointApiDeleteAgent: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/RemoveAgent",
-    agentId: null
+    endpointApiDeleteAgent:
+      "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/RemoveAgent",
+    agentId: null,
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -127,14 +128,14 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
-     async RemoveAgent(){
+    async RemoveAgent() {
       var bodyRequest = { id: this.agentId };
 
-        let responseRemoveAgent = await this.DeleteData(
-          this.endpointApiDeleteAgent,
-          bodyRequest
-        );
-        console.log("Response", responseRemoveAgent);
+      let responseRemoveAgent = await this.DeleteData(
+        this.endpointApiDeleteAgent,
+        bodyRequest
+      );
+      console.log("Response", responseRemoveAgent);
     },
     async testSetAgent() {
       let agentResponse = await this.getAvailableAgent();
@@ -261,6 +262,7 @@ export default {
             this.hangUpCallButton = true;
             this.startVideoButton = true;
             this.stopVideoButton = true;
+            this.$router.push("/");
             console.log(
               `Call ended, call end reason={code=${call.callEndReason.code}, subCode=${call.callEndReason.subCode}}`
             );
@@ -427,7 +429,7 @@ export default {
       // end the current call
       this.RemoveAgent();
       await this.call.hangUp();
-       this.$router.push("/");
+      this.$router.push("/");
     },
     async DeleteData(url = "", data = {}) {
       // Opciones por defecto estan marcadas con un *
