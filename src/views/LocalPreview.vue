@@ -163,7 +163,7 @@ export default {
             console.log("incomingCall");
             this.incomingCall = args.incomingCall;
             this.acceptCallButton = false;
-            this.startCallButton = true;
+            //this.startCallButton = true;
           } catch (error) {
             console.error(error);
           }
@@ -202,6 +202,7 @@ export default {
     },
     async startCall() {
       console.log("startCall");
+      this.startCallButton = true;
       try {
         const localVideoStream = await this.createLocalVideoStream();
         console.log("localVideoStream", localVideoStream);
@@ -215,9 +216,9 @@ export default {
         );
         // Subscribe to the call's properties and events.
         this.subscribeToCall(this.call);
-        this.startCallButton = false;
       } catch (error) {
         console.error(error);
+        this.startCallButton = false;
       }
     },
     async acceptCall() {
